@@ -14,7 +14,7 @@ export function Messages({ messages, username }: MessagesProps) {
       if (message.user === undefined) return;
       return (
         <div
-          className="w-full flex items-center justify-center text-sm"
+          className="w-full flex items-center justify-center text-sm animate-in fade-in slide-in-from-bottom-4 duration-300"
           key={index}
         >
           <p>
@@ -28,7 +28,7 @@ export function Messages({ messages, username }: MessagesProps) {
     const isMe = username === message.author;
 
     return (
-      <div className="w-full flex flex-col gap-1 relative" key={index}>
+      <div className="w-full flex flex-col gap-1 relative animate-in fade-in slide-in-from-bottom-4 duration-300" key={index}>
         {!isMe && (
           <p className="font-bold text-muted-foreground text-sm gap-1 inline-flex items-center">
             {message.bot && <Bot className="size-4" />}@{message.author}

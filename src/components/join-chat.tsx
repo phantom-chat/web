@@ -49,7 +49,7 @@ export const JoinChatCard = ({ setUsername }: JoinChatCardProps) => {
           join chat
         </Button>
       </form>
-      <p className="max-w-xs text-sm text-center mt-4  text-muted-foreground">made with 🖤 by <Link href="https://github.com/upenha" className="hover:text-primary underline transition underline-offset-2">upenha</Link>, <Link href="https://github.com/joaotonaco" className="hover:text-primary underline transition underline-offset-2">joaotonaco</Link> & <Link href="https://github.com/lyricalsoul" className="hover:text-primary underline transition underline-offset-2">lyricalsoul</Link></p>
+      <p className="max-w-xs text-sm text-center mt-4  text-muted-foreground">made with 🖤 by <Link target="_blank" href="https://github.com/upenha" className="hover:text-primary underline transition underline-offset-2">upenha</Link>, <Link target="_blank" href="https://github.com/joaotonaco" className="hover:text-primary underline transition underline-offset-2">joaotonaco</Link> & <Link target="_blank" href="https://github.com/lyricalsoul" className="hover:text-primary underline transition underline-offset-2">lyricalsoul</Link></p>
     </div>
   );
 };

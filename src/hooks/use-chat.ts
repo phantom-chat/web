@@ -2,6 +2,21 @@
 
 import { useEffect, useState } from "react";
 
+type Author = {
+	id: string;
+	username: string;
+	createdAt: string;
+	bot?: boolean;
+}
+
+type NewMessage = {
+	event: "messageCreate";
+	author: Author;
+	content: string;
+	createdAt: number;
+}
+
+
 export type Message =
 	| {
 		event: "messageCreate";
