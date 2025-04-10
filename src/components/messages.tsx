@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/auth";
 import { type Message, groupMessages } from "@/hooks/use-chat";
 import { formatTime } from "@/lib/format-time";
 import { cn } from "@/lib/utils";
@@ -5,10 +6,10 @@ import { Bot } from "lucide-react";
 
 type MessagesProps = {
   messages: Message[];
-  username: string;
 };
 
-export function Messages({ messages, username }: MessagesProps) {
+export function Messages({ messages }: MessagesProps) {
+  const { user } = useAuth();
   return groupMessages(messages).map((message, index) => {
     if (message.type === "memberEvent") {
       if (message.user === undefined) return;
@@ -18,42 +19,39 @@ export function Messages({ messages, username }: MessagesProps) {
           key={index}
         >
           <p>
-            <b>@{message.user}</b>{" "}
+            <b>@{message.user.username}</b>{" "}
             {message.action === "add" ? "joined" : "left"} the chat
           </p>
         </div>
       );
     }
 
-    const isMe = username === message.author;
+    const isMe = user?.id === message.author.id;
 
     return (
-      <div className="w-full flex flex-col gap-1 relative animate-in fade-in slide-in-from-bottom-4 duration-300" key={index}>
+      <div
+        className="w-full flex flex-col gap-1 relative animate-in fade-in slide-in-from-bottom-4 duration-300"
+        key={index}
+      >
         {!isMe && (
           <p className="font-bold text-muted-foreground text-sm gap-1 inline-flex items-center">
-            {message.bot && <Bot className="size-4" />}@{message.author}
+            {message.author.bot && <Bot className="size-4" />}@
+            {message.author.username}
           </p>
         )}
 
         <div
           className={cn(
-            "w-fit flex flex-col border p-2.5 text-sm min-w-1/12 bg-secondary rounded-lg gap-2 max-w-11/12 break-words",
-            isMe ? "bg-secondary/50 border-border/50" : "",
+            "w-fit flex-col border p-2.5 text-sm min-w-1/12 bg-secondary rounded-lg gap-1.5 max-w-11/12 break-words hyphens-auto",
+            isMe && "bg-secondary/50 border-border/50",
           )}
         >
-          <div className="flex flex-col gap-1.5">
-            {message.messages.map((msg, i) => {
-              return <p key={i}>{msg.content}</p>;
-            })}
-          </div>
+          {message.messages.map((msg, i) => (
+            <p key={i}>{msg.content}</p>
+          ))}
         </div>
 
-        <span
-          className={cn(
-            "text-muted-foreground/80 text-xs",
-            isMe ? "mr-auto" : "mr-auto",
-          )}
-        >
+        <span className="text-muted-foreground/80 text-xs">
           {formatTime(message.messages[0].timestamp)}
         </span>
       </div>

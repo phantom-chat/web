@@ -1,15 +1,14 @@
-"use client";
 import Image from "next/image";
 
-import { login } from "@/actions/login";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+
 import logoBlack from "../../../../public/logo-letter-black.svg";
 import logoWhite from "../../../../public/logo-letter-white.svg";
 
-export default function LoginPage() {
+export default function SignUpPage() {
 	return (
 		<div className="items-center justify-center flex-col flex h-screen font-mono">
 			<div className="inline-flex items-center gap-2">
@@ -28,14 +27,19 @@ export default function LoginPage() {
 					height={120}
 				/>
 			</div>
-			<form
-				className="w-full max-w-[320px] flex flex-col p-4 border gap-2.5 rounded-lg"
-				action={login}
-			>
+			<form className="w-full max-w-[320px] flex flex-col p-4 border gap-2.5 rounded-lg">
+				<div className="grid gap-2">
+					<Label>e-mail</Label>
+					<Input
+						placeholder="place your e-mail"
+						minLength={3}
+						maxLength={16}
+						type="email"
+					/>
+				</div>
 				<div className="grid gap-2">
 					<Label>username</Label>
 					<Input
-						name="login"
 						placeholder="place your username"
 						minLength={3}
 						maxLength={16}
@@ -45,8 +49,16 @@ export default function LoginPage() {
 				<div className="grid gap-2">
 					<Label>password</Label>
 					<Input
-						name="password"
 						placeholder="place your password"
+						minLength={3}
+						maxLength={16}
+						type="password"
+					/>
+				</div>
+				<div className="grid gap-2">
+					<Label>confirm password</Label>
+					<Input
+						placeholder="place your password again"
 						minLength={3}
 						maxLength={16}
 						type="password"

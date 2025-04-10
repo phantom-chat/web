@@ -1,58 +1,76 @@
 "use client";
 
+import { useAuth } from "@/contexts/auth";
+import cookie from "js-cookie";
 import { useEffect, useState } from "react";
 
 type Author = {
 	id: string;
 	username: string;
 	createdAt: string;
-	bot?: boolean;
-}
-
-type NewMessage = {
-	event: "messageCreate";
-	author: Author;
-	content: string;
-	createdAt: number;
-}
-
+	bot: boolean;
+};
 
 export type Message =
 	| {
-		event: "messageCreate";
-		author: string;
-		content: string;
-		timestamp: number;
-		bot?: boolean;
-	}
+			event: "messageCreate";
+			id: string;
+			author: {
+				id: string;
+				username: string;
+				createdAt: string;
+				bot: boolean;
+			};
+			content: string;
+			timestamp: string;
+	  }
 	| {
-		event: "memberAdd";
-		user: string;
-	}
+			event: "memberAdd";
+			user: {
+				id: string;
+				username: string;
+				createdAt: Date;
+				bot: boolean;
+			};
+	  }
 	| {
-		event: "memberDelete";
-		user: string;
-	};
+			event: "memberDelete";
+			user: {
+				id: string;
+				username: string;
+				createdAt: Date;
+				bot: boolean;
+			};
+	  };
 
 export type GroupedMessage =
 	| {
-		type: "messageEvent";
-		author: string;
-		bot?: boolean;
-		messages: {
-			content: string;
-			timestamp: number;
-		}[];
-	}
+			type: "messageEvent";
+			author: {
+				id: string;
+				username: string;
+				createdAt: string;
+				bot: boolean;
+			};
+			messages: {
+				content: string;
+				timestamp: number;
+			}[];
+	  }
 	| {
-		type: "memberEvent";
-		action: "add" | "delete";
-		user: string;
-	};
+			type: "memberEvent";
+			action: "add" | "delete";
+			user: {
+				id: string;
+				username: string;
+				createdAt: Date;
+				bot: boolean;
+			};
+	  };
 
 export function groupMessages(messages: Message[]): GroupedMessage[] {
 	const result: GroupedMessage[] = [];
-	let currentAuthor: string | null = null;
+	let currentAuthor: Author | null = null;
 	let currentMessages: {
 		content: string;
 		timestamp: number;
@@ -69,26 +87,33 @@ export function groupMessages(messages: Message[]): GroupedMessage[] {
 		}
 	};
 
-	messages.forEach((message) => {
+	for (const message of messages) {
 		if (message.event === "messageCreate") {
-			if (message.author !== currentAuthor) {
+			if (!currentAuthor || message.author.id !== currentAuthor.id) {
 				flushCurrentMessages();
-				currentAuthor = message.author;
+				currentAuthor = {
+					id: message.author.id,
+					username: message.author.username,
+					createdAt: message.author.createdAt,
+					bot: message.author.bot,
+				};
 			}
+
 			currentMessages.push({
 				content: message.content,
-				timestamp: message.timestamp,
+				timestamp: Number(new Date(message.timestamp)),
 			});
 		} else {
 			flushCurrentMessages();
 			currentAuthor = null;
+
 			result.push({
 				type: "memberEvent",
 				action: message.event === "memberAdd" ? "add" : "delete",
 				user: message.user,
 			});
 		}
-	});
+	}
 
 	flushCurrentMessages();
 	return result;
@@ -103,32 +128,40 @@ export type TypingPayload = {
 };
 
 export function useChat() {
+	const { isAuthenticated, user } = useAuth();
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [username, setUsername] = useState<string>();
 	const [typingList, setTypingList] = useState<TypingPayload[]>([]);
 	const [isTyping, setIsTyping] = useState<boolean>();
 	const [socket, setSocket] = useState<WebSocket | null>(null);
-	const [authenticated, setAuthenticated] = useState<boolean>(false);
-
+	const [socketAuthenticated, setSocketAuthenticated] =
+		useState<boolean>(false);
 
 	useEffect(() => {
-		if (!username) return;
-		const ws = new WebSocket("ws://26.19.71.60:3333/chat");
+		if (!user) return;
+		if (!isAuthenticated) return;
+		const ws = new WebSocket("ws://100.94.141.111:3333/chat");
 
 		setSocket(ws);
 		ws.onopen = (event) => {
 			setTypingList([]);
 			setIsTyping(false);
 			setMessages([]);
-			const handshakeMessage = { event: "handshake", type: "request", username: username, timestamp: Date.now(), bot: false };
+			const handshakeMessage = {
+				event: "handshake",
+				type: "request",
+				token: cookie.get("phantom-token"),
+				timestamp: Date.now(),
+			};
 			ws.send(JSON.stringify(handshakeMessage));
 		};
 
 		ws.onmessage = (event) => {
 			const data = JSON.parse(event.data);
+			// console.log(data)
 			if (data.event === "handshake" && data.status === "success") {
 				console.log("Authentication successful");
-				setAuthenticated(true);
+				setSocketAuthenticated(true);
 			}
 
 			if (data.event === "typingStart") {
@@ -150,12 +183,13 @@ export function useChat() {
 				setMessages([]);
 			}
 
-			setMessages((prev) => [...prev, JSON.parse(event.data)]);
+			const message = JSON.parse(event.data);
+			setMessages((prev) => [...prev, message]);
 		};
 
 		ws.onclose = (event) => {
-			setUsername(undefined);
-			setAuthenticated(false);
+			// setUsername(undefined);
+			setSocketAuthenticated(false);
 		};
 
 		return () => {
@@ -166,20 +200,24 @@ export function useChat() {
 				ws.close();
 			}
 		};
-	}, [username]);
+	}, [user?.username]);
 
 	const startTyping = () => {
 		if (isTyping === true) return;
-		if (!username || !socket || socket.readyState !== WebSocket.OPEN) return;
-		socket?.send(JSON.stringify({ event: "startTyping", username: username }));
+		if (!user || !socket || socket.readyState !== WebSocket.OPEN) return;
+		socket?.send(
+			JSON.stringify({ event: "startTyping", username: user.username }),
+		);
 		// setTypingList((prev) => [...prev, { username: username, timestamp: Date.now(), typing: true }])
 		setIsTyping(true);
 	};
 
 	const stopTyping = () => {
 		if (isTyping === false) return;
-		if (!username || !socket || socket.readyState !== WebSocket.OPEN) return;
-		socket?.send(JSON.stringify({ event: "stopTyping", username: username }));
+		if (!user || !socket || socket.readyState !== WebSocket.OPEN) return;
+		socket?.send(
+			JSON.stringify({ event: "stopTyping", username: user.username }),
+		);
 		// setTypingList((prev) => prev.filter((item) => item.username !== username));
 		setIsTyping(false);
 	};
@@ -188,14 +226,14 @@ export function useChat() {
 		if (message === "/clear") {
 			return socket?.send(JSON.stringify({ event: "clearChat" }));
 		}
-		await fetch("http://26.19.71.60:3333/message/create", {
+		await fetch("http://100.94.141.111:3333/message/create", {
 			method: "POST",
 			body: JSON.stringify({
-				author: username,
 				content: message,
 			}),
 			headers: {
 				"Content-Type": "application/json",
+				Authorization: "Bearer " + cookie.get("phantom-token"),
 			},
 		});
 		void 0;
@@ -208,7 +246,7 @@ export function useChat() {
 		stopTyping,
 		messages,
 		username,
-		authenticated,
+		socketAuthenticated,
 		typingList,
 	};
 }
