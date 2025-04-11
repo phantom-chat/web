@@ -5,8 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
+import { Metadata } from "next";
 import logoBlack from "../../../../public/logo-letter-black.svg";
 import logoWhite from "../../../../public/logo-letter-white.svg";
+
+export const metadata: Metadata = {
+	title: 'Sign up',
+}
 
 export default function SignUpPage() {
 	return (
@@ -68,6 +73,16 @@ export default function SignUpPage() {
 				<Button type="submit" className="mt-2">
 					login
 				</Button>
+
+				<p className="text-center text-xs text-muted-foreground">
+					already have an account?{" "}
+					<Link
+						href="/login"
+						className="text-primary underline underline-offset-2 transition"
+					>
+						login
+					</Link>
+				</p>
 			</form>
 			<p className="max-w-xs text-sm text-center mt-4  text-muted-foreground">
 				made with 🖤 by{" "}

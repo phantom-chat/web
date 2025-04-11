@@ -1,18 +1,13 @@
 import { revalidate } from "@/actions/revalidate";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/auth";
 import Image from "next/image";
 import Link from "next/link";
-import { type Dispatch, type SetStateAction, useState } from "react";
 import logoBlack from "../../public/logo-letter-black.svg";
 import logoWhite from "../../public/logo-letter-white.svg";
 
-type JoinChatCardProps = {
-	setUsername: Dispatch<SetStateAction<string | undefined>>;
-};
 
-export const JoinChatCard = ({ setUsername }: JoinChatCardProps) => {
+export const JoinChatCard = () => {
 	const { isAuthenticated, user, logout } = useAuth();
 
 	return (

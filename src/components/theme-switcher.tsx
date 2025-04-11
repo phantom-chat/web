@@ -4,8 +4,6 @@ import { useTheme } from "next-themes";
 import { Button } from "./ui/button";
 
 export const ThemeSwitcher = () => {
-	// O(n)
-	// O(1)
 	const { setTheme } = useTheme();
 	const toggleTheme = () => {
 		setTheme((theme) => (theme === "dark" ? "light" : "dark"));

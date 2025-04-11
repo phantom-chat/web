@@ -11,9 +11,10 @@ import {
 	useState,
 } from "react";
 
-type User = {
+export type User = {
 	id: string;
 	email: string;
+	status: "online" | "offline";
 	username: string;
 	createdAt: string;
 	bot: boolean;
@@ -28,7 +29,7 @@ type AuthType = {
 const AuthContext = createContext({
 	isAuthenticated: false,
 	user: null,
-	logout: () => {},
+	logout: () => { },
 } as AuthType);
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {

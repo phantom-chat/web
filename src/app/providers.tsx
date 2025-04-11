@@ -2,17 +2,20 @@
 import type { PropsWithChildren } from "react";
 
 import { AuthProvider } from "@/contexts/auth";
+import { ChatProvider } from "@/contexts/chat";
 import { ThemeProvider } from "next-themes";
 
 export const Providers = ({ children }: PropsWithChildren) => (
 	<AuthProvider>
-		<ThemeProvider
-			attribute="class"
-			defaultTheme="system"
-			enableSystem
-			disableTransitionOnChange
-		>
-			{children}
-		</ThemeProvider>
+		<ChatProvider>
+			<ThemeProvider
+				attribute="class"
+				defaultTheme="system"
+				enableSystem
+				disableTransitionOnChange
+			>
+				{children}
+			</ThemeProvider>
+		</ChatProvider>
 	</AuthProvider>
 );

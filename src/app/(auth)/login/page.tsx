@@ -1,13 +1,17 @@
-"use client";
 import Image from "next/image";
 
 import { login } from "@/actions/login";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Metadata } from "next";
 import Link from "next/link";
 import logoBlack from "../../../../public/logo-letter-black.svg";
 import logoWhite from "../../../../public/logo-letter-white.svg";
+
+export const metadata: Metadata = {
+	title: 'Login',
+}
 
 export default function LoginPage() {
 	return (
@@ -56,6 +60,15 @@ export default function LoginPage() {
 				<Button type="submit" className="mt-2">
 					login
 				</Button>
+				<p className="text-xs text-center text-muted-foreground">
+					or{" "}
+					<Link
+						href="/signup"
+						className="text-primary underline transition underline-offset-2"
+					>
+						create an account
+					</Link>
+				</p>
 			</form>
 			<p className="max-w-xs text-sm text-center mt-4  text-muted-foreground">
 				made with 🖤 by{" "}
