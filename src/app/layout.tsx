@@ -24,8 +24,8 @@ export default function RootLayout({
 			>
 				<Providers>
 					{children}
-					<ThemeSwitcher />
-					<Toaster />
+					{/* <ThemeSwitcher /> */}
+					<Toaster mobileOffset={16} />
 				</Providers>
 			</body>
 		</html>

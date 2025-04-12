@@ -6,21 +6,19 @@ import { RedirectType, redirect } from "next/navigation";
 
 type Response =
 	| {
-			success: true;
-			id: string;
-			email: string;
-			username: string;
-			createdAt: string;
-			token: string;
-	  }
+		success: true;
+		id: string;
+		email: string;
+		username: string;
+		createdAt: string;
+		token: string;
+	}
 	| {
-			success: false;
-			message: string;
-	  };
+		success: false;
+		message: string;
+	};
 
 export async function login(formData: FormData) {
-	// const router = useRouter()
-
 	const login = formData.get("login") as string;
 	const password = formData.get("password") as string;
 

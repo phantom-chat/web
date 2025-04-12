@@ -1,9 +1,19 @@
 // import { GroupedMessage, groupMessages, Message, TypingPayload } from "@/hooks/use-chat";
 import { type User, useAuth } from "@/contexts/auth";
-import { emitter } from "@/lib/emitter";
+import { emitter, HandshakeEvent, MessageCreateEvent, MessageDeleteEvent, MessagesFetchEvent, UsersFetchEvent } from "@/lib/emitter";
+import { formatMessage } from "@/lib/format-message";
+import { Message } from "@/types/message";
 import { default as cookie } from "js-cookie";
-import { createContext, PropsWithChildren, use, useEffect, useMemo, useState } from "react";
+import { createContext, PropsWithChildren, use, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+
+export enum Events {
+    MESSAGE_CREATE = "messageCreate",
+    MESSAGE_DELETE = "messageDelete",
+    USERS_FETCH = "usersFetch",
+    MESSAGE_FETCH = "messagesFetch",
+    HANDSHAKE = "handshake",
+}
 
 type Author = {
     id: string;
@@ -12,18 +22,8 @@ type Author = {
     bot: boolean;
 };
 
-export type Message = {
-    event: "messageCreate";
-    id: string;
-    author: {
-        id: string;
-        username: string;
-        createdAt: string;
-        bot: boolean;
-    };
-    content: string;
-    createdAt: string;
-}
+type MessagePayload = HandshakeEvent | MessagesFetchEvent | UsersFetchEvent | MessageCreateEvent | MessageDeleteEvent;
+
 
 export type GroupedMessage = {
     type: "messageEvent";
@@ -84,6 +84,7 @@ export function groupMessages(messages: Message[]): GroupedMessage[] {
     flushCurrentMessages();
     return result;
 }
+
 type ChatContextType = {
     messages: Message[];
     sendMessage: (content: string) => Promise<void>;
@@ -99,8 +100,8 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
     const { isAuthenticated, user } = useAuth();
     const [messages, setMessages] = useState<Message[]>([]);
     const groupedMessages = useMemo(() => groupMessages(messages), [messages]);
-
-    const [_, setSocket] = useState<WebSocket | null>(null);
+    const { current: socket } = useRef<WebSocket>(null)
+    // const [_, setSocket] = useState<WebSocket | null>(null);
     const [users, setUsers] = useState<User[]>([]);
     const [socketAuthenticated, setSocketAuthenticated] =
         useState<boolean>(false);
@@ -110,7 +111,7 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
         if (!user) return;
         if (!isAuthenticated) return;
         const ws = new WebSocket("ws://100.94.141.111:3333/chat");
-        setSocket(ws);
+        socket === ws;
         ws.onopen = () => {
             setMessages([]);
             const handshakeMessage = {
@@ -123,22 +124,22 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
         };
 
         ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
+            const data = JSON.parse(event.data) as MessagePayload;
 
             switch (data.event) {
-                case "handshake":
+                case Events.HANDSHAKE:
                     emitter.emit("handshake", data);
                     break;
-                case "messagesFetch":
+                case Events.MESSAGE_FETCH:
                     emitter.emit("messagesFetch", data);
                     break;
-                case "usersFetch":
+                case Events.USERS_FETCH:
                     emitter.emit("usersFetch", data);
                     break;
-                case "messageCreate":
+                case Events.MESSAGE_CREATE:
                     emitter.emit("messageCreate", data);
                     break;
-                case "messageDelete":
+                case Events.MESSAGE_DELETE:
                     emitter.emit("messageDelete", data);
                     break;
             }
@@ -151,47 +152,20 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 
         emitter.on("handshake", (data) => {
             if (data.status === "success") {
-                // toast.error("You are logged in.");
                 toast.success("you are logged in.");
-                setSocketAuthenticated(true);
-            } else {
-                toast.error("authentication failed. try again later.");
-                setSocketAuthenticated(false);
+                return setSocketAuthenticated(true);
             }
+            toast.error("authentication failed. try again later.");
+            return setSocketAuthenticated(false);
         });
 
-        emitter.on("usersFetch", ({ users }) => {
-            setUsers(users);
-        });
+        emitter.on("usersFetch", ({ users }) => { setUsers(users); });
 
-        emitter.on("messagesFetch", ({ messages }) => {
-            const formattedMessages = messages.map((msg: any) => ({
-                event: "messageCreate",
-                id: String(msg.id),
-                author: {
-                    id: String(msg.author.id),
-                    username: msg.author.username,
-                    createdAt: msg.author.createdAt,
-                    bot: Boolean(msg.author.bot),
-                },
-                content: msg.content,
-                createdAt: msg.createdAt,
-            })) as Message[];
+        emitter.on("messagesFetch", ({ messages }) => { setMessages((prev) => [...formatMessage(messages), ...prev]) });
 
-            setMessages((prevMessages) => [...formattedMessages, ...prevMessages]);
-        });
+        emitter.on("messageCreate", (message) => { setMessages((prev) => [...prev, message]) });
 
-        emitter.on("messageCreate", (message) => {
-            setMessages((prev) => {
-                return [...prev, message];
-            });
-        });
-
-        emitter.on("messageDelete", ({ id }) => {
-            setMessages((prev) => {
-                return prev.filter((msg) => msg.id !== String(id));
-            });
-        });
+        emitter.on("messageDelete", ({ id }) => { setMessages((prev) => prev.filter((msg) => msg.id !== String(id))); });
 
         return () => {
             if (

@@ -1,6 +1,5 @@
 import { useAuth } from "@/contexts/auth";
 import { useChat } from "@/contexts/chat";
-import { GroupedMessage } from "@/hooks/use-chat";
 import { formatTime } from "@/lib/format-time";
 import { cn } from "@/lib/utils";
 import { Bot } from "lucide-react";

@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { login } from "@/actions/login";
+import { Credits } from "@/components/credits";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,20 +38,20 @@ export default function LoginPage() {
 				action={login}
 			>
 				<div className="grid gap-2">
-					<Label>username</Label>
+					<Label>Username</Label>
 					<Input
 						name="login"
-						placeholder="place your username"
+						placeholder="Place your username"
 						minLength={3}
 						maxLength={16}
 					/>
 				</div>
 
 				<div className="grid gap-2">
-					<Label>password</Label>
+					<Label>Password</Label>
 					<Input
 						name="password"
-						placeholder="place your password"
+						placeholder="Place your password"
 						minLength={3}
 						maxLength={16}
 						type="password"
@@ -58,7 +59,7 @@ export default function LoginPage() {
 				</div>
 
 				<Button type="submit" className="mt-2">
-					login
+					Login
 				</Button>
 				<p className="text-xs text-center text-muted-foreground">
 					or{" "}
@@ -70,32 +71,7 @@ export default function LoginPage() {
 					</Link>
 				</p>
 			</form>
-			<p className="max-w-xs text-sm text-center mt-4  text-muted-foreground">
-				made with 🖤 by{" "}
-				<Link
-					target="_blank"
-					href="https://github.com/upenha"
-					className="hover:text-primary underline transition underline-offset-2"
-				>
-					upenha
-				</Link>
-				,{" "}
-				<Link
-					target="_blank"
-					href="https://github.com/joaotonaco"
-					className="hover:text-primary underline transition underline-offset-2"
-				>
-					joaotonaco
-				</Link>{" "}
-				&{" "}
-				<Link
-					target="_blank"
-					href="https://github.com/lyricalsoul"
-					className="hover:text-primary underline transition underline-offset-2"
-				>
-					lyricalsoul
-				</Link>
-			</p>
+			<Credits />
 		</div>
 	);
 }

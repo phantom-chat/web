@@ -1,24 +1,21 @@
 import type { User } from "@/contexts/auth";
-import type { Message } from "@/hooks/use-chat";
+import { Events } from "@/contexts/chat";
+import { Message } from "@/types/message";
 import { EventEmitter } from "node:events";
 
-// {
 
-//     "event": "messageFetch"
-// }
-
-type HandshakeEvent = {
-	event: "handshake";
+export type HandshakeEvent = {
+	event: Events.HANDSHAKE;
 	status: "success" | "failed";
 };
 
-type UsersFetchEvent = {
-	event: "usersFetch";
+export type UsersFetchEvent = {
+	event: Events.USERS_FETCH;
 	users: User[];
 };
 
-type MessageFetchEvent = {
-	event: "messageFetch";
+export type MessagesFetchEvent = {
+	event: Events.MESSAGE_FETCH;
 	messages: {
 		id: number;
 		content: string;
@@ -33,28 +30,28 @@ type MessageFetchEvent = {
 	}[];
 };
 
-type MessageDeleteEvent = {
-	event: "usersFetch";
+export type MessageDeleteEvent = {
+	event: Events.MESSAGE_DELETE;
 	id: number;
 };
 
-type MessageCreateEvent = Message;
+export type MessageCreateEvent = Message;
 
-interface Events {
+interface TEvents {
 	handshake: ({ event, status }: HandshakeEvent) => void;
 	usersFetch: ({ users }: UsersFetchEvent) => void;
-	messagesFetch: ({ messages }: MessageFetchEvent) => void;
+	messagesFetch: ({ messages }: MessagesFetchEvent) => void;
 	messageCreate: (message: MessageCreateEvent) => void;
 	messageDelete: ({ id }: MessageDeleteEvent) => void;
 }
 
 export class Emitter extends EventEmitter {
-	on<K extends keyof Events>(event: K, listener: Events[K]): this {
+	on<K extends keyof TEvents>(event: K, listener: TEvents[K]): this {
 		return super.on(event, listener);
 	}
-	emit<K extends keyof Events>(
+	emit<K extends keyof TEvents>(
 		event: K,
-		...args: Parameters<Events[K]>
+		...args: Parameters<TEvents[K]>
 	): boolean {
 		return super.emit(event, ...args);
 	}

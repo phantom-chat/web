@@ -1,7 +1,6 @@
 import { useAuth } from "@/contexts/auth";
 import { useChat } from "@/contexts/chat";
-import { cn } from "@/lib/utils";
-import { Send, SendHorizonal, Smile } from "lucide-react";
+import { SendHorizonal, Smile } from "lucide-react";
 import { type FormEvent, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import {
@@ -54,7 +53,7 @@ export const Input = () => {
 					name="message"
 					className="w-full min-h-10 resize-none max-h-20"
 					onKeyDown={handleKeyDown}
-					placeholder={`message #chat as @${user?.username}`}
+					placeholder={`Message as @${user?.username}`}
 					value={message}
 					onChange={(e) => setMessage(e.currentTarget.value)}
 					autoComplete="off"

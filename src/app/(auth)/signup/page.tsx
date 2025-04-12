@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
+import { Credits } from "@/components/credits";
 import { Metadata } from "next";
 import logoBlack from "../../../../public/logo-letter-black.svg";
 import logoWhite from "../../../../public/logo-letter-white.svg";
@@ -34,36 +35,36 @@ export default function SignUpPage() {
 			</div>
 			<form className="w-full max-w-[320px] flex flex-col p-4 border gap-2.5 rounded-lg">
 				<div className="grid gap-2">
-					<Label>e-mail</Label>
+					<Label>E-mail</Label>
 					<Input
-						placeholder="place your e-mail"
+						placeholder="Place your e-mail"
 						minLength={3}
 						maxLength={16}
 						type="email"
 					/>
 				</div>
 				<div className="grid gap-2">
-					<Label>username</Label>
+					<Label>Username</Label>
 					<Input
-						placeholder="place your username"
+						placeholder="Place your username"
 						minLength={3}
 						maxLength={16}
 					/>
 				</div>
 
 				<div className="grid gap-2">
-					<Label>password</Label>
+					<Label>Password</Label>
 					<Input
-						placeholder="place your password"
+						placeholder="Place your password"
 						minLength={3}
 						maxLength={16}
 						type="password"
 					/>
 				</div>
 				<div className="grid gap-2">
-					<Label>confirm password</Label>
+					<Label>Confirm password</Label>
 					<Input
-						placeholder="place your password again"
+						placeholder="Place your password again"
 						minLength={3}
 						maxLength={16}
 						type="password"
@@ -71,45 +72,20 @@ export default function SignUpPage() {
 				</div>
 
 				<Button type="submit" className="mt-2">
-					login
+					Login
 				</Button>
 
 				<p className="text-center text-xs text-muted-foreground">
-					already have an account?{" "}
+					Already have an account?{" "}
 					<Link
 						href="/login"
 						className="text-primary underline underline-offset-2 transition"
 					>
-						login
+						Login
 					</Link>
 				</p>
 			</form>
-			<p className="max-w-xs text-sm text-center mt-4  text-muted-foreground">
-				made with 🖤 by{" "}
-				<Link
-					target="_blank"
-					href="https://github.com/upenha"
-					className="hover:text-primary underline transition underline-offset-2"
-				>
-					upenha
-				</Link>
-				,{" "}
-				<Link
-					target="_blank"
-					href="https://github.com/joaotonaco"
-					className="hover:text-primary underline transition underline-offset-2"
-				>
-					joaotonaco
-				</Link>{" "}
-				&{" "}
-				<Link
-					target="_blank"
-					href="https://github.com/lyricalsoul"
-					className="hover:text-primary underline transition underline-offset-2"
-				>
-					lyricalsoul
-				</Link>
-			</p>
+			<Credits />
 		</div>
 	);
 }

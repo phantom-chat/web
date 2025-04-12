@@ -1,16 +1,18 @@
+'use client'
 import { useAuth } from "@/contexts/auth";
 import { useChat } from "@/contexts/chat";
-import cookie from "js-cookie";
-import { Clipboard, Pencil, Trash } from "lucide-react";
+import useLongPress from "@/hooks/use-long-press";
 import { useState } from "react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
+
+import { CopyMessageInteraction } from "./chat/messages/interactions/copy";
+import { DeleteMessageInteraction } from "./chat/messages/interactions/delete";
+import { EditMessageInteraction } from "./chat/messages/interactions/edit";
 import {
   ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
+  ContextMenuContent, ContextMenuSeparator,
   ContextMenuTrigger
 } from "./ui/context-menu";
+import { Drawer, DrawerContent, DrawerTitle } from "./ui/drawer";
 
 type MessageProps = {
   id: string;
@@ -21,11 +23,13 @@ type MessageProps = {
 
 export const Message = ({ content, createdAt, id, authorId }: MessageProps) => {
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { user } = useAuth();
   const { deleteMessage } = useChat();
+  const backspaceLongPress = useLongPress(() => setDrawerOpen(true), 500);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(content);
+    navigator.clipboard?.writeText(content);
   };
 
 
@@ -36,54 +40,68 @@ export const Message = ({ content, createdAt, id, authorId }: MessageProps) => {
 
   const isAuthor = user?.id === authorId;
   return (
-    <ContextMenu modal={false}>
-      <ContextMenuTrigger>
-        <div className="flex items-center border border-transparent justify-between py-0.5 px-2 w-full hover:text-muted-foreground">
+    <>
+      <div className="block lg:hidden">
+        <div {...backspaceLongPress} className="flex items-center border border-transparent justify-between py-0.5 px-2 w-full transition hover:text-muted-foreground">
           <p className="whitespace-pre-wrap break-words">{content}</p>
         </div>
-      </ContextMenuTrigger>
-      <ContextMenuContent className="min-w-[160px]">
-        <ContextMenuItem onClick={handleCopy} className="text-sm">
-          copy text
-          <Clipboard className="size-3" />
-        </ContextMenuItem>
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+          <DrawerContent className="">
+            <DrawerTitle className="hidden">Are you absolutely sure?</DrawerTitle>
+            <div className="flex px-4 py-8 flex-col gap-3">
 
-        {isAuthor && (
-          <>
-            <ContextMenuItem disabled className="text-sm">
-              edit message
-              <Pencil className="size-3" />
-            </ContextMenuItem>
-            <ContextMenuSeparator />
+              <CopyMessageInteraction mobile onClick={() => { handleCopy(); setDrawerOpen(false) }} />
+              <EditMessageInteraction mobile isAuthor={isAuthor} />
+              <DeleteMessageInteraction
+                mobile
+                modalOpen={deleteOpen}
+                handleDelete={handleDelete}
+                id={id}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (e.shiftKey) {
+                    handleDelete(id);
+                  } else {
+                    setDeleteOpen(true);
+                  }
+                }}
+                setModalOpen={setDeleteOpen}
+                onClickDelete={() => { handleDelete(id); setDrawerOpen(false) }}
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      </div>
+      <div className="hidden lg:block">
+        <ContextMenu modal={false}>
+          <ContextMenuTrigger>
+            <div className="flex items-center border border-transparent justify-between py-0.5 px-2 w-full transition hover:text-muted-foreground">
+              <p className="whitespace-pre-wrap break-words">{content}</p>
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="min-w-[160px]">
+            <CopyMessageInteraction onClick={() => handleCopy} />
+            <EditMessageInteraction isAuthor={isAuthor} />
 
-            <AlertDialog open={deleteOpen}  >
-              <AlertDialogTrigger asChild>
+            {isAuthor && (<ContextMenuSeparator />)}
+            <DeleteMessageInteraction
+              modalOpen={deleteOpen}
+              handleDelete={handleDelete}
+              id={id}
+              onClick={(e) => {
+                e.preventDefault();
+                if (e.shiftKey) {
+                  handleDelete(id);
+                } else {
+                  setDeleteOpen(true);
+                }
+              }}
+              setModalOpen={setDeleteOpen}
+            />
+          </ContextMenuContent>
+        </ContextMenu>
+      </div>
 
-                <ContextMenuItem variant="destructive" className="text-sm" onClick={(e) => { e.preventDefault(); setDeleteOpen(true) }}>
-                  delete message
-                  <Trash className="size-3" />
-                </ContextMenuItem>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    once you delete this message, it's gone forever. there's no
-                    going back, so be sure!
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel onClick={() => setDeleteOpen(false)}>cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => handleDelete(id)} className="bg-red-500 text-red-50 hover:bg-red-500 hover:opacity-75">delete</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-
-            </AlertDialog>
-          </>
-        )}
-
-      </ContextMenuContent>
-    </ContextMenu>
-
+    </>
   );
 };
