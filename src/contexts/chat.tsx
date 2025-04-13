@@ -97,21 +97,33 @@ type ChatContextType = {
 const ChatContext = createContext<ChatContextType | null>(null);
 
 export const ChatProvider = ({ children }: PropsWithChildren) => {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user, setUser } = useAuth();
     const [messages, setMessages] = useState<Message[]>([]);
     const groupedMessages = useMemo(() => groupMessages(messages), [messages]);
-    const { current: socket } = useRef<WebSocket>(null)
-    // const [_, setSocket] = useState<WebSocket | null>(null);
+    const socket = useRef<WebSocket>(null)
     const [users, setUsers] = useState<User[]>([]);
     const [socketAuthenticated, setSocketAuthenticated] =
         useState<boolean>(false);
 
 
     useEffect(() => {
+        const userStatus = users.find((u) => Number(u.id) === Number(user?.id))?.status
+
+        console.log(userStatus)
+        setUser((prev) => {
+            if (!prev) return null;
+            if (!userStatus) return prev;
+            return {
+                ...prev,
+                status: userStatus as "online" | "offline" | "idle"
+            }
+        })
+    }, [users])
+    useEffect(() => {
         if (!user) return;
         if (!isAuthenticated) return;
         const ws = new WebSocket("ws://100.94.141.111:3333/chat");
-        socket === ws;
+        socket.current === ws;
         ws.onopen = () => {
             setMessages([]);
             const handshakeMessage = {
@@ -121,28 +133,6 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
                 timestamp: Date.now(),
             };
             ws.send(JSON.stringify(handshakeMessage));
-        };
-
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data) as MessagePayload;
-
-            switch (data.event) {
-                case Events.HANDSHAKE:
-                    emitter.emit("handshake", data);
-                    break;
-                case Events.MESSAGE_FETCH:
-                    emitter.emit("messagesFetch", data);
-                    break;
-                case Events.USERS_FETCH:
-                    emitter.emit("usersFetch", data);
-                    break;
-                case Events.MESSAGE_CREATE:
-                    emitter.emit("messageCreate", data);
-                    break;
-                case Events.MESSAGE_DELETE:
-                    emitter.emit("messageDelete", data);
-                    break;
-            }
         };
 
         ws.onclose = () => {
@@ -167,15 +157,40 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 
         emitter.on("messageDelete", ({ id }) => { setMessages((prev) => prev.filter((msg) => msg.id !== String(id))); });
 
-        return () => {
-            if (
-                ws.readyState === WebSocket.OPEN ||
-                ws.readyState === WebSocket.CONNECTING
-            ) {
-                ws.close();
+
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data) as MessagePayload;
+
+            switch (data.event) {
+                case Events.HANDSHAKE:
+                    emitter.emit("handshake", data);
+                    break;
+                case Events.MESSAGE_FETCH:
+                    emitter.emit("messagesFetch", data);
+                    break;
+                case Events.USERS_FETCH:
+                    emitter.emit("usersFetch", data);
+                    break;
+                case Events.MESSAGE_CREATE:
+                    emitter.emit("messageCreate", data);
+                    break;
+                case Events.MESSAGE_DELETE:
+                    emitter.emit("messageDelete", data);
+                    break;
             }
         };
-    }, [user?.username]);
+
+
+        return () => {
+            if (socket.current &&
+                (socket.current.readyState === WebSocket.OPEN ||
+                    socket.current.readyState === WebSocket.CONNECTING)
+            ) {
+                socket.current.close();
+            }
+        };
+    }, [isAuthenticated]);
 
     const deleteMessage = async (id: string) => {
         await fetch("http://100.94.141.111:3333/messages/delete", {

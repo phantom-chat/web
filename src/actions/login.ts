@@ -1,5 +1,7 @@
 "use server";
 
+import { emitter } from "@/lib/emitter";
+// import { useChat } from "@/contexts/chat";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { RedirectType, redirect } from "next/navigation";
@@ -19,6 +21,7 @@ type Response =
 	};
 
 export async function login(formData: FormData) {
+	// const { connectWebSocket } = useChat();
 	const login = formData.get("login") as string;
 	const password = formData.get("password") as string;
 
@@ -40,6 +43,7 @@ export async function login(formData: FormData) {
 		expires: Date.now() + 3_600_000,
 	});
 
-	revalidatePath("/");
+
+	// await connectWebSocket();
 	redirect("/", RedirectType.replace);
 }

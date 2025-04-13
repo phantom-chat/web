@@ -24,10 +24,9 @@ export default function RootLayout({
 			>
 				<Providers>
 					{children}
-					{/* <ThemeSwitcher /> */}
-					<Toaster mobileOffset={16} />
+					<Toaster mobileOffset={16} duration={2000} />
 				</Providers>
 			</body>
-		</html>
+		</html >
 	);
 }

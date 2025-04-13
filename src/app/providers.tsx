@@ -14,7 +14,9 @@ export const Providers = ({ children }: PropsWithChildren) => (
 				enableSystem
 				disableTransitionOnChange
 			>
-				{children}
+				<div onContextMenu={(e) => e.preventDefault()}>
+					{children}
+				</div>
 			</ThemeProvider>
 		</ChatProvider>
 	</AuthProvider>

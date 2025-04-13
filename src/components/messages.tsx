@@ -1,9 +1,9 @@
+import { Message } from "@/components/chat/messages/message";
 import { useAuth } from "@/contexts/auth";
 import { useChat } from "@/contexts/chat";
 import { formatTime } from "@/lib/format-time";
 import { cn } from "@/lib/utils";
 import { Bot } from "lucide-react";
-import { Message } from "./message";
 
 
 export function Messages() {

@@ -45,7 +45,7 @@ export const Input = () => {
 		<div className="sticky bottom-0">
 			<form
 				onSubmit={handleSend}
-				className="flex relative bg-gradient-to-b from-transparent to-25% to-background bottom-0 py-4 z-20 flex-row w-full items-center justify-between gap-2"
+				className="flex relative bg-gradient-to-b from-transparent to-50% to-background pb-4 z-20 flex-row w-full items-center justify-between gap-2"
 			>
 				<Textarea
 					ref={inputRef}

@@ -4,7 +4,9 @@ import { User } from "lucide-react";
 import { redirect } from "next/navigation";
 import { Router } from "next/router";
 import {
+	Dispatch,
 	type PropsWithChildren,
+	SetStateAction,
 	createContext,
 	use,
 	useEffect,
@@ -14,7 +16,7 @@ import {
 export type User = {
 	id: string;
 	email: string;
-	status: "online" | "offline";
+	status: "online" | "offline" | "idle";
 	username: string;
 	createdAt: string;
 	bot: boolean;
@@ -24,11 +26,13 @@ type AuthType = {
 	isAuthenticated: boolean;
 	user: User | null;
 	logout: () => void;
+	setUser: Dispatch<SetStateAction<User | null>>
 };
 
 const AuthContext = createContext({
 	isAuthenticated: false,
 	user: null,
+	setUser: (user: User | null) => { },
 	logout: () => { },
 } as AuthType);
 
@@ -72,7 +76,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 	};
 
 	return (
-		<AuthContext value={{ isAuthenticated, user, logout }}>
+		<AuthContext value={{ isAuthenticated, user, logout, setUser }}>
 			{children}
 		</AuthContext>
 	);

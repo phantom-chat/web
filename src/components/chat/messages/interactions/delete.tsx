@@ -31,7 +31,6 @@ export const DeleteMessageInteraction = ({ modalOpen, setModalOpen, onClickDelet
             <AlertDialogContent className="w-lg h-fit">
                 <AlertDialogHeader>
                     <AlertDialogTitle className="text-lg">Are you absolutely sure?</AlertDialogTitle>
-
                     <AlertDialogDescription>
                         Are you absolutely sure you want to delete this message?
                     </AlertDialogDescription>
@@ -50,7 +49,7 @@ export const DeleteMessageInteraction = ({ modalOpen, setModalOpen, onClickDelet
                     <AlertDialogTrigger asChild>
                         <ContextMenuItem
                             variant="destructive"
-                            className="text-sm"
+                            className="text-sm w-full"
                             onClick={onClick}
                         >
                             Delete message
@@ -60,11 +59,11 @@ export const DeleteMessageInteraction = ({ modalOpen, setModalOpen, onClickDelet
                     <AlertDialogContent className="w-lg h-48">
                         <AlertDialogHeader>
                             <AlertDialogTitle className="text-lg">Are you absolutely sure?</AlertDialogTitle>
-
                             <AlertDialogDescription>
                                 Are you absolutely sure you want to delete this message?
                             </AlertDialogDescription>
                         </AlertDialogHeader>
+
                         <AlertDialogFooter className="items-end">
                             <AlertDialogCancel onClick={() => setModalOpen(false)}>Cancel</AlertDialogCancel>
                             <AlertDialogDelete onClick={() => handleDelete(id)}>Delete</AlertDialogDelete>
