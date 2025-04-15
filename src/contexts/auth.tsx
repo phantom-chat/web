@@ -11,6 +11,7 @@ import {
 	useEffect,
 	useState,
 } from "react";
+import { toast } from "sonner";
 
 export type User = {
 	id: string;
@@ -42,6 +43,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 	useEffect(() => {
 		const token = cookies.get("phantom-token");
 		if (user !== null) return;
+
 		if (!token) return;
 		const fetchUser = async () => {
 			const res = await fetch("http://100.94.141.111:3333/users/@me", {

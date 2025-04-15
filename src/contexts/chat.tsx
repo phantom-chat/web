@@ -1,9 +1,10 @@
-// import { GroupedMessage, groupMessages, Message, TypingPayload } from "@/hooks/use-chat";
+
 import { type User, useAuth } from "@/contexts/auth";
 import { emitter, HandshakeEvent, MessageCreateEvent, MessageDeleteEvent, MessagesFetchEvent, UsersFetchEvent } from "@/lib/emitter";
 import { formatMessage } from "@/lib/format-message";
 import { Message } from "@/types/message";
 import { default as cookie } from "js-cookie";
+import { redirect } from "next/navigation";
 import { createContext, PropsWithChildren, use, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -119,6 +120,7 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 			}
 		})
 	}, [users])
+
 	useEffect(() => {
 		if (!user) return;
 		if (!isAuthenticated) return;
@@ -193,7 +195,7 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 	}, [isAuthenticated]);
 
 	const deleteMessage = async (id: string) => {
-		await fetch("http://100.94.141.111:3333/messages/delete", {
+		const res = await fetch("http://100.94.141.111:3333/messages/delete", {
 			method: "DELETE",
 			body: JSON.stringify({
 				id: Number(id),
@@ -203,7 +205,13 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 				Authorization: "Bearer " + cookie.get("phantom-token"),
 			},
 		});
-		void 0;
+
+		if (res.status !== 200) {
+			toast.error("you are not logged in.")
+			cookie.remove('phantom-token')
+			socket.current?.close();
+			redirect('/login')
+		}
 	};
 
 	const sendMessage = async (message: string) => {
@@ -213,7 +221,7 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 			return;
 		}
 
-		await fetch("http://100.94.141.111:3333/messages/create", {
+		const res = await fetch("http://100.94.141.111:3333/messages/create", {
 			method: "POST",
 			body: JSON.stringify({
 				content: trimmedMessage,
@@ -223,7 +231,12 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 				Authorization: "Bearer " + cookie.get("phantom-token"),
 			},
 		});
-		void 0;
+		if (res.status !== 200) {
+			toast.error("you are not logged in.")
+			cookie.remove('phantom-token')
+			socket.current?.close();
+			redirect('/login')
+		}
 	};
 	return (
 
