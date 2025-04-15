@@ -12,7 +12,6 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Textarea } from "../ui/textarea";
 
-
 export const Input = () => {
 	const { user } = useAuth();
 	const { sendMessage } = useChat();
@@ -32,7 +31,7 @@ export const Input = () => {
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-		if (e.key === 'Enter' && !e.shiftKey) {
+		if (e.key === "Enter" && !e.shiftKey) {
 			e.preventDefault();
 			if (message.trim()) {
 				sendMessage(message);
@@ -73,7 +72,7 @@ export const Input = () => {
 								setMessage((prev) => {
 									if (!inputRef.current) return prev + emoji;
 									const cursorPosition =
-										inputRef.current.selectionStart ?? prev!.length;
+										inputRef.current.selectionStart ?? prev?.length;
 									setIsOpen(false);
 									return (
 										prev?.slice(0, cursorPosition) +
@@ -81,7 +80,7 @@ export const Input = () => {
 										prev?.slice(cursorPosition)
 									);
 								});
-								inputRef!.current!.focus();
+								inputRef?.current?.focus();
 							}}
 						>
 							<EmojiPickerSearch />

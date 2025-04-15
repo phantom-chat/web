@@ -1,11 +1,9 @@
-import { revalidate } from "@/actions/revalidate";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth";
 import Image from "next/image";
 import Link from "next/link";
 import logoBlack from "../../public/logo-letter-black.svg";
 import logoWhite from "../../public/logo-letter-white.svg";
-
 
 export const JoinChatCard = () => {
 	const { isAuthenticated, user, logout } = useAuth();
@@ -30,9 +28,7 @@ export const JoinChatCard = () => {
 			</div>
 			<form
 				className="w-full max-w-[320px] flex flex-col p-4  gap-2 rounded-lg"
-				onSubmit={() => {
-					revalidate("/");
-				}}
+
 			>
 				<Button type="submit" disabled={!isAuthenticated}>
 					join chat
@@ -41,6 +37,8 @@ export const JoinChatCard = () => {
 					<p className="text-center text-sm text-muted-foreground">
 						connected as <b>@{user?.username}</b>.{" "}
 						<button
+							type="button"
+							title="logout"
 							onClick={logout}
 							className="cursor-pointer hover:text-primary transition"
 						>

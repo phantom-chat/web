@@ -1,8 +1,7 @@
-import type { User } from "@/contexts/auth";
-import { Events } from "@/contexts/chat";
-import { Message } from "@/types/message";
 import { EventEmitter } from "node:events";
-
+import type { User } from "@/contexts/auth";
+import type { Events } from "@/contexts/chat";
+import type { Message } from "@/types/message";
 
 export type HandshakeEvent = {
 	event: Events.HANDSHAKE;

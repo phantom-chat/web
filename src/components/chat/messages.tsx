@@ -5,12 +5,10 @@ import { formatTime } from "@/lib/format-time";
 import { cn } from "@/lib/utils";
 import { Bot } from "lucide-react";
 
-
 export function Messages() {
 	const { user } = useAuth();
-	const { groupedMessages } = useChat()
+	const { groupedMessages } = useChat();
 	return groupedMessages.map((message, index) => {
-
 		const isMe = user?.id === message.author.id;
 
 		return (

@@ -1,18 +1,15 @@
 import Image from "next/image";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Link from "next/link";
 
 import { Credits } from "@/components/credits";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import logoBlack from "../../../../public/logo-letter-black.svg";
 import logoWhite from "../../../../public/logo-letter-white.svg";
+import { SignupForm } from "./form";
 
 export const metadata: Metadata = {
-	title: 'Sign up',
-}
+	title: "Sign up",
+};
 
 export default function SignUpPage() {
 	return (
@@ -33,7 +30,8 @@ export default function SignUpPage() {
 					height={120}
 				/>
 			</div>
-			<form className="w-full max-w-[320px] flex flex-col p-4 border gap-2.5 rounded-lg">
+			<SignupForm />
+			{/* <form className="w-full max-w-[320px] flex flex-col p-4 border gap-2.5 rounded-lg">
 				<div className="grid gap-2">
 					<Label>E-mail</Label>
 					<Input
@@ -84,7 +82,7 @@ export default function SignUpPage() {
 						Login
 					</Link>
 				</p>
-			</form>
+			</form> */}
 			<Credits />
 		</div>
 	);

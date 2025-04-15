@@ -1,12 +1,11 @@
 "use client";
 import cookies from "js-cookie";
-import { User } from "lucide-react";
 import { redirect } from "next/navigation";
-import { Router } from "next/router";
+
 import {
-	Dispatch,
+	type Dispatch,
 	type PropsWithChildren,
-	SetStateAction,
+	type SetStateAction,
 	createContext,
 	use,
 	useEffect,
@@ -26,7 +25,7 @@ type AuthType = {
 	isAuthenticated: boolean;
 	user: User | null;
 	logout: () => void;
-	setUser: Dispatch<SetStateAction<User | null>>
+	setUser: Dispatch<SetStateAction<User | null>>;
 };
 
 const AuthContext = createContext({
@@ -48,7 +47,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 			const res = await fetch("http://100.94.141.111:3333/users/@me", {
 				headers: {
 					"Content-Type": "application/json",
-					Authorization: "Bearer " + token,
+					Authorization: `Bearer ${token}`,
 				},
 			});
 
@@ -66,13 +65,12 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 			setIsAuthenticated(true);
 		};
 		fetchUser();
-	}, []);
+	}, [cookies.get("phantom-token")]);
 
 	const logout = () => {
 		cookies.remove("phantom-token");
 		setIsAuthenticated(false);
 		setUser(null);
-		// redirect('/login')
 	};
 
 	return (
