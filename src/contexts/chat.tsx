@@ -58,54 +58,20 @@ export type GroupedMessage = {
 };
 
 export function groupMessages(messages: Message[]): GroupedMessage[] {
-	const result: GroupedMessage[] = [];
-	let currentAuthor: Author | null = null;
-	let currentMessages: {
-		id: string;
-		content: string;
-		createdAt: number;
-	}[] = [];
-	let lastMessageTime: number | null = null;
-	const timeout = 10 * 60 * 1000; // 10 minutes in milliseconds
-
-	const flushCurrentMessages = () => {
-		if (currentAuthor && currentMessages.length > 0) {
-			result.push({
-				type: "messageEvent",
-				author: currentAuthor,
-				messages: [...currentMessages],
-			});
-			currentMessages = [];
+	const MESSAGE_GROUPING_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
+	const groups: GroupedMessage[] = []
+	let current = { author: null as Author | null, messages: [] as any[], };
+	messages.filter((msg) => msg.event === Events.MESSAGE_CREATE).forEach(msg => {
+		const time = new Date(msg.createdAt).getTime();
+		if (!current.author || msg.author.id !== current.author.id || (current.messages.length && time - current.messages.at(-1).createdAt > MESSAGE_GROUPING_TIMEOUT)) {
+			if (current.author) groups.push({ type: "messageEvent", author: current.author, messages: current.messages });
+			current = { author: msg.author, messages: [] }
 		}
-	};
 
-	for (const message of messages) {
-		if (message.event === "messageCreate") {
-			const currentMessageTime = Number(new Date(message.createdAt));
-			console.log(currentMessageTime)
-
-			if (!currentAuthor || message.author.id !== currentAuthor.id || (lastMessageTime && currentMessageTime - lastMessageTime > timeout)) {
-				flushCurrentMessages();
-				currentAuthor = {
-					id: message.author.id,
-					username: message.author.username,
-					createdAt: message.author.createdAt,
-					bot: message.author.bot,
-				};
-			}
-
-			currentMessages.push({
-				id: message.id,
-				content: message.content,
-				createdAt: Number(new Date(message.createdAt)),
-			});
-
-			lastMessageTime = currentMessageTime;
-		}
-	}
-
-	flushCurrentMessages();
-	return result;
+		current.messages.push({ id: msg.id, content: msg.content, createdAt: time });
+	})
+	if (current.author) groups.push({ type: "messageEvent", author: current.author, messages: current.messages });
+	return groups;
 }
 
 type ChatContextType = {
