@@ -65,6 +65,8 @@ export function groupMessages(messages: Message[]): GroupedMessage[] {
 		content: string;
 		createdAt: number;
 	}[] = [];
+	let lastMessageTime: number | null = null;
+	const timeout = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 	const flushCurrentMessages = () => {
 		if (currentAuthor && currentMessages.length > 0) {
@@ -79,7 +81,10 @@ export function groupMessages(messages: Message[]): GroupedMessage[] {
 
 	for (const message of messages) {
 		if (message.event === "messageCreate") {
-			if (!currentAuthor || message.author.id !== currentAuthor.id) {
+			const currentMessageTime = Number(new Date(message.createdAt));
+			console.log(currentMessageTime)
+
+			if (!currentAuthor || message.author.id !== currentAuthor.id || (lastMessageTime && currentMessageTime - lastMessageTime > timeout)) {
 				flushCurrentMessages();
 				currentAuthor = {
 					id: message.author.id,
@@ -94,6 +99,8 @@ export function groupMessages(messages: Message[]): GroupedMessage[] {
 				content: message.content,
 				createdAt: Number(new Date(message.createdAt)),
 			});
+
+			lastMessageTime = currentMessageTime;
 		}
 	}
 

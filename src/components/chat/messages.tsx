@@ -35,7 +35,9 @@ export function Messages() {
 				</div>
 
 				<span className="text-muted-foreground/80 text-xs">
-					{formatTime(message.messages[0].createdAt)}
+					{formatTime(
+						new Date(message.messages[message.messages.length - 1]?.createdAt),
+					)}
 				</span>
 			</div>
 		);
