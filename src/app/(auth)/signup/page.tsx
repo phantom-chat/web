@@ -1,6 +1,5 @@
 import Image from "next/image";
 
-
 import { Credits } from "@/components/credits";
 import type { Metadata } from "next";
 import logoBlack from "../../../../public/logo-letter-black.svg";

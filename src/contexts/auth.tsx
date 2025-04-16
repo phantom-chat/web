@@ -11,12 +11,17 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import { toast } from "sonner";
+
+export enum Status {
+	ONLINE = "online",
+	OFFLINE = "offline",
+	IDLE = "idle",
+}
 
 export type User = {
 	id: string;
 	email: string;
-	status: "online" | "offline" | "idle";
+	status: Status;
 	username: string;
 	createdAt: string;
 	bot: boolean;
@@ -32,8 +37,8 @@ type AuthType = {
 const AuthContext = createContext({
 	isAuthenticated: false,
 	user: null,
-	setUser: (user: User | null) => { },
-	logout: () => { },
+	setUser: (user: User | null) => {},
+	logout: () => {},
 } as AuthType);
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {

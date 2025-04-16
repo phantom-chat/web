@@ -1,46 +1,19 @@
-import { EventEmitter } from "node:events";
-import type { User } from "@/contexts/auth";
-import type { Events } from "@/contexts/chat";
-import type { Message } from "@/types/message";
-
-export type HandshakeEvent = {
-	event: Events.HANDSHAKE;
-	status: "success" | "failed";
-};
-
-export type UsersFetchEvent = {
-	event: Events.USERS_FETCH;
-	users: User[];
-};
-
-export type MessagesFetchEvent = {
-	event: Events.MESSAGE_FETCH;
-	messages: {
-		id: number;
-		content: string;
-		createdAt: string;
-		updatedAt: string | null;
-		author: {
-			id: number;
-			username: string;
-			createdAt: string;
-			bot: boolean;
-		};
-	}[];
-};
-
-export type MessageDeleteEvent = {
-	event: Events.MESSAGE_DELETE;
-	id: number;
-};
-
-export type MessageCreateEvent = Message;
+import type {
+	HandshakeEvent,
+	MessageCreateEvent,
+	MessageDeleteEvent,
+	MessagesFetchEvent,
+	UsersFetchEvent,
+	UserUpdateEvent,
+} from "@/types/events";
+import { EventEmitter } from "events";
 
 interface TEvents {
 	handshake: ({ event, status }: HandshakeEvent) => void;
+	userUpdate: ({ user }: UserUpdateEvent) => void;
 	usersFetch: ({ users }: UsersFetchEvent) => void;
 	messagesFetch: ({ messages }: MessagesFetchEvent) => void;
-	messageCreate: (message: MessageCreateEvent) => void;
+	messageCreate: ({ ...message }: MessageCreateEvent) => void;
 	messageDelete: ({ id }: MessageDeleteEvent) => void;
 }
 

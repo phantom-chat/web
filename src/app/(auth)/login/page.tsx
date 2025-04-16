@@ -11,9 +11,7 @@ export const metadata: Metadata = {
 	title: "Login",
 };
 
-
 export default function LoginPage() {
-
 	return (
 		<div className="items-center justify-center flex-col flex h-screen font-mono">
 			<div className="inline-flex items-center gap-2">
@@ -33,7 +31,6 @@ export default function LoginPage() {
 				/>
 			</div>
 			<LoginForm />
-
 
 			<Credits />
 		</div>

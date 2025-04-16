@@ -1,11 +1,21 @@
-
-import { type User, useAuth } from "@/contexts/auth";
-import { emitter, HandshakeEvent, MessageCreateEvent, MessageDeleteEvent, MessagesFetchEvent, UsersFetchEvent } from "@/lib/emitter";
+import { type Status, type User, useAuth } from "@/contexts/auth";
+import {
+	emitter,
+} from "@/lib/emitter";
 import { formatMessage } from "@/lib/format-message";
-import { Message } from "@/types/message";
-import { default as cookie } from "js-cookie";
+import { HandshakeEvent, MessageCreateEvent, MessageDeleteEvent, MessagesFetchEvent, UsersFetchEvent, UserUpdateEvent } from "@/types/events";
+import type { Message } from "@/types/message";
+import cookies from "js-cookie";
 import { redirect } from "next/navigation";
-import { createContext, PropsWithChildren, use, useEffect, useMemo, useRef, useState } from "react";
+import {
+	type PropsWithChildren,
+	createContext,
+	use,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { toast } from "sonner";
 
 export enum Events {
@@ -14,6 +24,7 @@ export enum Events {
 	USERS_FETCH = "usersFetch",
 	MESSAGE_FETCH = "messagesFetch",
 	HANDSHAKE = "handshake",
+	USER_UPDATE = "userUpdate",
 }
 
 type Author = {
@@ -23,8 +34,13 @@ type Author = {
 	bot: boolean;
 };
 
-type MessagePayload = HandshakeEvent | MessagesFetchEvent | UsersFetchEvent | MessageCreateEvent | MessageDeleteEvent;
-
+type MessagePayload =
+	| HandshakeEvent
+	| MessagesFetchEvent
+	| UsersFetchEvent
+	| MessageCreateEvent
+	| MessageDeleteEvent
+	| UserUpdateEvent
 
 export type GroupedMessage = {
 	type: "messageEvent";
@@ -39,8 +55,7 @@ export type GroupedMessage = {
 		content: string;
 		createdAt: number;
 	}[];
-}
-
+};
 
 export function groupMessages(messages: Message[]): GroupedMessage[] {
 	const result: GroupedMessage[] = [];
@@ -89,6 +104,7 @@ export function groupMessages(messages: Message[]): GroupedMessage[] {
 type ChatContextType = {
 	messages: Message[];
 	sendMessage: (content: string) => Promise<void>;
+	changeStatus: (status: Status) => Promise<void>;
 	deleteMessage: (id: string) => Promise<void>;
 	users: User[];
 	socketAuthenticated: boolean;
@@ -101,25 +117,24 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 	const { isAuthenticated, user, setUser } = useAuth();
 	const [messages, setMessages] = useState<Message[]>([]);
 	const groupedMessages = useMemo(() => groupMessages(messages), [messages]);
-	const socket = useRef<WebSocket>(null)
+	const socket = useRef<WebSocket>(null);
 	const [users, setUsers] = useState<User[]>([]);
 	const [socketAuthenticated, setSocketAuthenticated] =
 		useState<boolean>(false);
 
-
 	useEffect(() => {
-		const userStatus = users.find((u) => Number(u.id) === Number(user?.id))?.status
-
-		console.log(userStatus)
+		const userStatus = users.find(
+			(u) => Number(u.id) === Number(user?.id),
+		)?.status
 		setUser((prev) => {
 			if (!prev) return null;
 			if (!userStatus) return prev;
 			return {
 				...prev,
-				status: userStatus as "online" | "offline" | "idle"
-			}
-		})
-	}, [users])
+				status: userStatus as Status,
+			};
+		});
+	}, [users]);
 
 	useEffect(() => {
 		if (!user) return;
@@ -131,38 +146,56 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 			const handshakeMessage = {
 				event: "handshake",
 				type: "request",
-				token: cookie.get("phantom-token"),
+				token: cookies.get("phantom-token"),
 				timestamp: Date.now(),
 			};
 			ws.send(JSON.stringify(handshakeMessage));
 		};
 
 		ws.onclose = () => {
-			toast.error("connection lost. Try again later.");
+			toast.error("Connection lost. Try again later.");
 			setSocketAuthenticated(false);
 		};
 
 		emitter.on("handshake", (data) => {
 			if (data.status === "success") {
-				toast.success("you are logged in.");
+				toast.success("You are logged in.");
 				return setSocketAuthenticated(true);
 			}
-			toast.error("authentication failed. try again later.");
+			toast.error("Authentication failed. Try again later.");
 			return setSocketAuthenticated(false);
 		});
 
-		emitter.on("usersFetch", ({ users }) => { setUsers(users); });
+		emitter.on('userUpdate', ({ user }) => {
+			setUsers(prevUsers => {
+				return prevUsers.map(prevUser => {
+					if (prevUser.id === user.id) {
+						return { ...prevUser, status: user.status };
+					}
+					return prevUser;
+				});
+			});
+		})
 
-		emitter.on("messagesFetch", ({ messages }) => { setMessages((prev) => [...formatMessage(messages), ...prev]) });
+		emitter.on("usersFetch", ({ users }) => {
+			setUsers(users);
+		});
 
-		emitter.on("messageCreate", (message) => { setMessages((prev) => [...prev, message]) });
+		emitter.on("messagesFetch", ({ messages }) => {
+			setMessages((prev) => [...formatMessage(messages), ...prev]);
+		});
 
-		emitter.on("messageDelete", ({ id }) => { setMessages((prev) => prev.filter((msg) => msg.id !== String(id))); });
+		emitter.on("messageCreate", (message) => {
+			setMessages((prev) => [...prev, message]);
+		});
 
-
+		emitter.on("messageDelete", ({ id }) => {
+			setMessages((prev) => prev.filter((msg) => msg.id !== String(id)));
+		});
 
 		ws.onmessage = (event) => {
 			const data = JSON.parse(event.data) as MessagePayload;
+			// console.log(data);
 
 			switch (data.event) {
 				case Events.HANDSHAKE:
@@ -180,12 +213,15 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 				case Events.MESSAGE_DELETE:
 					emitter.emit("messageDelete", data);
 					break;
+				case Events.USER_UPDATE:
+					emitter.emit("userUpdate", data);
+					break;
 			}
 		};
 
-
 		return () => {
-			if (socket.current &&
+			if (
+				socket.current &&
 				(socket.current.readyState === WebSocket.OPEN ||
 					socket.current.readyState === WebSocket.CONNECTING)
 			) {
@@ -202,15 +238,15 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 			}),
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: "Bearer " + cookie.get("phantom-token"),
+				Authorization: "Bearer " + cookies.get("phantom-token"),
 			},
 		});
 
 		if (res.status !== 200) {
-			toast.error("you are not logged in.")
-			cookie.remove('phantom-token')
+			toast.error("You are not logged in.");
+			cookies.remove("phantom-token");
 			socket.current?.close();
-			redirect('/login')
+			redirect("/login");
 		}
 	};
 
@@ -228,30 +264,56 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
 			}),
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: "Bearer " + cookie.get("phantom-token"),
+				Authorization: "Bearer " + cookies.get("phantom-token"),
 			},
 		});
 		if (res.status !== 200) {
-			toast.error("you are not logged in.")
-			cookie.remove('phantom-token')
+			toast.error("You are not logged in.");
+			cookies.remove("phantom-token");
 			socket.current?.close();
-			redirect('/login')
+			redirect("/login");
 		}
 	};
-	return (
 
-		<ChatContext value={{
-			sendMessage,
-			messages,
-			socketAuthenticated,
-			users,
-			groupedMessages,
-			deleteMessage
-		}}>
+	const changeStatus = async (status: Status) => {
+
+		const res = await fetch("http://100.94.141.111:3333/users/update", {
+			method: "PATCH",
+			body: JSON.stringify({
+				status: status,
+			}),
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: "Bearer " + cookies.get("phantom-token"),
+			},
+		});
+
+		const json = await res.json();
+		console.log(json);
+		// if (res.status !== 200) {
+		// 	toast.error("You are not logged in.");
+		// 	cookies.remove("phantom-token");
+		// 	socket.current?.close();
+		// 	redirect("/login");
+		// }
+	}
+
+	return (
+		<ChatContext
+			value={{
+				changeStatus,
+				sendMessage,
+				messages,
+				socketAuthenticated,
+				users,
+				groupedMessages,
+				deleteMessage,
+			}}
+		>
 			{children}
 		</ChatContext>
-	)
-}
+	);
+};
 
 export function useChat() {
 	const context = use(ChatContext);
