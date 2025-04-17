@@ -1,5 +1,5 @@
+import { UserPopover } from "@/components/user-popover";
 import { useChat } from "@/contexts/chat";
-import { UserPopover } from "../user-popover";
 
 export const UserList = () => {
 	const { users } = useChat();

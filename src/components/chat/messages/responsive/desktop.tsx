@@ -1,3 +1,9 @@
+import { CopyContentMessageInteraction } from "@/components/chat/messages/interactions/copy-content";
+import { CopyIdMessageInteraction } from "@/components/chat/messages/interactions/copy-id";
+import { DeleteMessageInteraction } from "@/components/chat/messages/interactions/delete";
+import { EditMessageInteraction } from "@/components/chat/messages/interactions/edit";
+import { ReplyMessageInteraction } from "@/components/chat/messages/interactions/reply";
+import type { MessageProps } from "@/components/chat/messages/message";
 import {
 	ContextMenu,
 	ContextMenuContent,
@@ -7,12 +13,6 @@ import {
 import { useAuth } from "@/contexts/auth";
 import { useChat } from "@/contexts/chat";
 import { useState } from "react";
-import { CopyContentMessageInteraction } from "../interactions/copy-content";
-import { CopyIdMessageInteraction } from "../interactions/copy-id";
-import { DeleteMessageInteraction } from "../interactions/delete";
-import { EditMessageInteraction } from "../interactions/edit";
-import { ReplyMessageInteraction } from "../interactions/reply";
-import type { MessageProps } from "../message";
 
 export const DesktopMessage = ({
 	content,

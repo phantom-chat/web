@@ -1,9 +1,9 @@
 import Image from "next/image";
 
 import { Credits } from "@/components/credits";
+import logoBlack from "@/public/logo-letter-black.svg";
+import logoWhite from "@/public/logo-letter-white.svg";
 import type { Metadata } from "next";
-import logoBlack from "../../../../public/logo-letter-black.svg";
-import logoWhite from "../../../../public/logo-letter-white.svg";
 import { SignupForm } from "./form";
 
 export const metadata: Metadata = {

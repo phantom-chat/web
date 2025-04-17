@@ -1,10 +1,9 @@
+import { Select, SelectContent, SelectItem, SelectSeparator } from "@/components/ui/select";
 import { Status, useAuth } from "@/contexts/auth";
 import { useChat } from "@/contexts/chat";
 import { cn } from "@/lib/utils";
 import { SelectTrigger } from "@radix-ui/react-select";
 import type { ClassValue } from "clsx";
-import { Button } from "../ui/button";
-import { Select, SelectContent, SelectItem, } from "../ui/select";
 import { UserSettings } from "./settings";
 
 export const userStatusClass = {
@@ -49,19 +48,20 @@ export const UserInfo = () => {
 							</p>
 						</div>
 					</SelectItem>
-					<SelectItem value="offline">
-						<div className="flex items-center gap-2">
-							<div className={cn("rounded-full size-2", userStatusClass.offline)} />
-							<p className="text-xs text-muted-foreground">
-								{userStatus.offline}
-							</p>
-						</div>
-					</SelectItem>
+					<SelectSeparator />
 					<SelectItem value="idle">
 						<div className="flex items-center gap-2">
 							<div className={cn("rounded-full size-2", userStatusClass.idle)} />
 							<p className="text-xs text-muted-foreground">
 								{userStatus.idle}
+							</p>
+						</div>
+					</SelectItem>
+					<SelectItem value="offline">
+						<div className="flex items-center gap-2">
+							<div className={cn("rounded-full size-2", userStatusClass.offline)} />
+							<p className="text-xs text-muted-foreground">
+								{userStatus.offline}
 							</p>
 						</div>
 					</SelectItem>

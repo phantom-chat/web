@@ -1,15 +1,15 @@
+import { CopyContentMessageInteraction } from "@/components/chat/messages/interactions/copy-content";
+import { CopyIdMessageInteraction } from "@/components/chat/messages/interactions/copy-id";
+import { DeleteMessageInteraction } from "@/components/chat/messages/interactions/delete";
+import { EditMessageInteraction } from "@/components/chat/messages/interactions/edit";
+import { ReplyMessageInteraction } from "@/components/chat/messages/interactions/reply";
+import type { MessageProps } from "@/components/chat/messages/message";
 import { ContextMenuSeparator } from "@/components/ui/context-menu";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { useAuth } from "@/contexts/auth";
 import { useChat } from "@/contexts/chat";
 import useLongPress from "@/hooks/use-long-press";
 import { useState } from "react";
-import { CopyContentMessageInteraction } from "../interactions/copy-content";
-import { CopyIdMessageInteraction } from "../interactions/copy-id";
-import { DeleteMessageInteraction } from "../interactions/delete";
-import { EditMessageInteraction } from "../interactions/edit";
-import { ReplyMessageInteraction } from "../interactions/reply";
-import type { MessageProps } from "../message";
 
 export const MobileMessage = ({
 	content,

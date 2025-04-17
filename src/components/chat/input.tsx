@@ -1,16 +1,16 @@
-import { useAuth } from "@/contexts/auth";
-import { useChat } from "@/contexts/chat";
-import { SendHorizonal, Smile } from "lucide-react";
-import { type FormEvent, useRef, useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import {
 	EmojiPicker,
 	EmojiPickerContent,
 	EmojiPickerFooter,
 	EmojiPickerSearch,
-} from "../ui/emoji-picker";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Textarea } from "../ui/textarea";
+} from "@/components/ui/emoji-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/contexts/auth";
+import { useChat } from "@/contexts/chat";
+import { SendHorizonal, Smile } from "lucide-react";
+import { type FormEvent, useRef, useState } from "react";
 
 export const Input = () => {
 	const { user } = useAuth();
