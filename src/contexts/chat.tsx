@@ -57,20 +57,56 @@ export type GroupedMessage = {
 	}[];
 };
 
+const MESSAGE_GROUPING_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+type CurrentGroup = {
+	author: Author | null;
+	messages: {
+		id: string;
+		content: string;
+		createdAt: number;
+	}[];
+}
+
 export function groupMessages(messages: Message[]): GroupedMessage[] {
-	const MESSAGE_GROUPING_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
-	const groups: GroupedMessage[] = []
-	let current = { author: null as Author | null, messages: [] as any[], };
-	messages.filter((msg) => msg.event === Events.MESSAGE_CREATE).forEach(msg => {
-		const time = new Date(msg.createdAt).getTime();
-		if (!current.author || msg.author.id !== current.author.id || (current.messages.length && time - current.messages.at(-1).createdAt > MESSAGE_GROUPING_TIMEOUT)) {
-			if (current.author) groups.push({ type: "messageEvent", author: current.author, messages: current.messages });
-			current = { author: msg.author, messages: [] }
+	const groups: GroupedMessage[] = [];
+	let current: CurrentGroup = { author: null, messages: [] };
+	const filteredMessages = messages.filter((msg) => msg.event === Events.MESSAGE_CREATE);
+
+	for (const message of filteredMessages) {
+		const time = new Date(message.createdAt).getTime();
+
+		if (
+			!current.author ||
+			message.author.id !== current.author.id ||
+			(current.messages.length &&
+				time - (current.messages.at(-1)?.createdAt ?? 0) > MESSAGE_GROUPING_TIMEOUT)
+		) {
+			if (current.author) {
+				groups.push({
+					type: "messageEvent",
+					author: current.author,
+					messages: current.messages,
+				});
+			}
+
+			current = { author: message.author, messages: [] };
 		}
 
-		current.messages.push({ id: msg.id, content: msg.content, createdAt: time });
-	})
-	if (current.author) groups.push({ type: "messageEvent", author: current.author, messages: current.messages });
+		current.messages.push({
+			id: message.id,
+			content: message.content,
+			createdAt: time,
+		});
+	}
+
+	if (current.author) {
+		groups.push({
+			type: "messageEvent",
+			author: current.author,
+			messages: current.messages,
+		});
+	}
 	return groups;
 }
 
