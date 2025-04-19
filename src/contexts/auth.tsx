@@ -37,8 +37,8 @@ type AuthType = {
 const AuthContext = createContext({
 	isAuthenticated: false,
 	user: null,
-	setUser: (user: User | null) => {},
-	logout: () => {},
+	setUser: (user: User | null) => { },
+	logout: () => { },
 } as AuthType);
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
@@ -58,6 +58,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 				},
 			});
 
+
 			if (res.status === 401) {
 				setUser(null);
 				setIsAuthenticated(false);
@@ -65,10 +66,9 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 				return redirect("/login");
 			}
 
-			const json = await res.json();
+			const json = await res.json() as User;
 
-			const userJSON = json.user as User;
-			setUser(userJSON);
+			setUser(json);
 			setIsAuthenticated(true);
 		};
 		fetchUser();
