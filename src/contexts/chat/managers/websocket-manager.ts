@@ -47,7 +47,7 @@ export class WebSocketManager {
 
     private handleMessage(event: MessageEvent) {
         const data = JSON.parse(event.data) as MessagePayload;
-        emitter.emit(data.event, data);
+        emitter.emit(data.event, data as any);
     }
 
     private setupEventListeners() {

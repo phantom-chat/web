@@ -1,4 +1,4 @@
-import type { Events } from "@/contexts/chat";
+import type { Events } from "@/contexts/chat/types";
 
 export type Message = {
 	event: Events.MESSAGE_CREATE;

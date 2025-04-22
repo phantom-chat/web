@@ -1,5 +1,5 @@
 import type { User } from "@/contexts/auth";
-import { Events } from "@/contexts/chat";
+import type { Events } from "@/contexts/chat/types";
 import type { Message } from "./message";
 
 export type HandshakeEvent = {
