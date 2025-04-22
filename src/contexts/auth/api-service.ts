@@ -1,7 +1,8 @@
+import { API_ENDPOINTS } from "@/config/api";
+import { apiService } from "@/services/api";
 import cookies from "js-cookie";
 import { redirect } from "next/navigation";
 import { User } from "./types";
-const API_BASE_URL = "http://100.94.141.111:3333";
 
 export const createAuthService = (
     setUser: (user: User | null) => void,
@@ -12,24 +13,18 @@ export const createAuthService = (
         if (!token) return null;
 
         try {
-            const res = await fetch(`${API_BASE_URL}/users/@me`, {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const user = await apiService.get<User>(API_ENDPOINTS.CURRENT_USER);
 
-            if (res.status === 401) {
+            if (!user) {
                 setUser(null);
                 setIsAuthenticated(false);
                 cookies.remove("phantom-token");
                 return redirect("/login");
             }
 
-            const userData = await res.json() as User;
-            setUser(userData);
+            setUser(user);
             setIsAuthenticated(true);
-            return userData;
+            return user;
         } catch (error) {
             console.error("Error fetching user data:", error);
             setUser(null);

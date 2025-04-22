@@ -25,11 +25,10 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
     useEffect(() => {
         const token = cookies.get("phantom-token");
-        if (user !== null) return;
-        if (!token) return;
+        if (user !== null || !token) return;
 
         authService.fetchCurrentUser();
-    }, [cookies.get("phantom-token")]);
+    }, [user, authService]);
 
     return (
         <AuthContext.Provider
@@ -48,3 +47,4 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 export const useAuth = () => use(AuthContext);
 
 export * from "./types";
+

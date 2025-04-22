@@ -1,20 +1,22 @@
 "use server";
 
+import { Status } from "@/contexts/auth";
 import { cookies } from "next/headers";
 
-type Response =
-	| {
-			success: true;
-			id: string;
-			email: string;
-			username: string;
-			createdAt: string;
-			token: string;
-	  }
-	| {
-			success: false;
-			message: string;
-	  };
+type Success = {
+	user: {
+		id: number;
+		email: string;
+		status: Status;
+		username: string;
+		password: string;
+		createdAt: Date;
+		bot: boolean;
+	},
+	token: string;
+}
+
+type LoginResponse = Success | { success: false; message: string; };
 
 export async function login(_: unknown, formData: FormData) {
 	const login = formData.get("login") as string;
@@ -30,10 +32,10 @@ export async function login(_: unknown, formData: FormData) {
 				password,
 			}),
 		});
-		const data = (await res.json()) as Response;
+		const data = (await res.json()) as LoginResponse;
 
-		if (data.success === false) {
-			throw data.message;
+		if ('success' in data) {
+			return { success: false, message: "Invalid username or password" };
 		}
 
 		(await cookies()).set("phantom-token", data.token, {
@@ -41,6 +43,6 @@ export async function login(_: unknown, formData: FormData) {
 		});
 		return { success: true };
 	} catch (err) {
-		return { success: false, message: err as string };
+		return { success: false, message: "An error occurred during login" };
 	}
 }

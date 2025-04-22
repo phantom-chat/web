@@ -75,6 +75,7 @@ export const SignupForm = () => {
 
 	useEffect(() => {
 		if (state?.success === false) {
+			console.log(state)
 			toast.error(state?.message);
 			return;
 		}
