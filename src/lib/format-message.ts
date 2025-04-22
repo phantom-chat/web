@@ -1,6 +1,6 @@
 import type { Message } from "@/types/message";
 
-type RawMessage = {
+export type RawMessage = {
 	id: number;
 	content: string;
 	createdAt: string;

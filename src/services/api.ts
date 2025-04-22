@@ -32,12 +32,36 @@ export class ApiService {
             throw new Error("API error");
         }
 
-        console.log(response)
+        return response.json();
+    }
+
+    async patch<T>(endpoint: string, data: any): Promise<T> {
+        const response = await fetch(endpoint, {
+            method: "PATCH",
+            headers: this.getAuthHeaders(),
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error("API error");
+        }
 
         return response.json();
     }
 
-    // TODO: PATCH, DELETE, etc.
+    async delete<T>(endpoint: string, data: any): Promise<T> {
+        const response = await fetch(endpoint, {
+            method: "DELETE",
+            headers: this.getAuthHeaders(),
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error("API error");
+        }
+
+        return response.json();
+    }
 }
 
 export const apiService = new ApiService();
