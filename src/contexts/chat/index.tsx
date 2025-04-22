@@ -14,7 +14,6 @@ import {
     useRef,
     useState,
 } from "react";
-import { toast } from "sonner";
 import { MessageManager } from "./managers/message-manager";
 import { UserManager } from "./managers/user-manager";
 import { WebSocketManager } from "./managers/websocket-manager";
@@ -37,7 +36,6 @@ export const ChatProvider = ({ children }: PropsWithChildren) => {
         () => new WebSocketManager(messageManager, userManager, setSocketAuthenticated),
         [messageManager, userManager]
     );
-    const socket = useRef<WebSocket>(null);
 
     useEffect(() => {
         const userStatus = users.find(
