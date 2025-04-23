@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "./(main)/globals.css";
 
-import { Providers } from "@/app/providers";
-import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Providers } from "@/app/(main)/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";

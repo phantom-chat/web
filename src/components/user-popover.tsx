@@ -1,7 +1,7 @@
-import type { User } from "@/contexts/auth";
-import { cn } from "@/lib/utils";
+import type { User } from "@/features/auth/context";
+import { cn } from "@/shared/lib/utils";
+import { userStatus, userStatusClass } from "../features/chat/components/user/info";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { userStatus, userStatusClass } from "./user/info";
 
 export const UserPopover = ({ user }: { user: User }) => {
 	return (

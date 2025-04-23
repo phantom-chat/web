@@ -14,7 +14,7 @@ import {
 } from "react-hook-form";
 
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 const Form = FormProvider;
 
@@ -157,12 +157,8 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
 }
 
 export {
-	useFormField,
-	Form,
-	FormItem,
-	FormLabel,
-	FormControl,
-	FormDescription,
-	FormMessage,
-	FormField,
+	Form, FormControl,
+	FormDescription, FormField, FormItem,
+	FormLabel, FormMessage, useFormField
 };
+

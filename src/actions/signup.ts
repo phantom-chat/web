@@ -1,7 +1,7 @@
 "use server";
 
 import { API_ENDPOINTS } from "@/config/api";
-import { Status } from "@/contexts/auth";
+import { Status } from "@/features/auth/context";
 
 type Success = {
 	user: {

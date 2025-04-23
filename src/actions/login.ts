@@ -1,6 +1,6 @@
 "use server";
 
-import { Status } from "@/contexts/auth";
+import { Status } from "@/features/auth/context";
 import { cookies } from "next/headers";
 
 type Success = {

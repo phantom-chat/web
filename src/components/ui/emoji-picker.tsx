@@ -9,7 +9,7 @@ import {
 import { LoaderIcon, SearchIcon } from "lucide-react";
 import type * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 function EmojiPicker({
 	className,
@@ -165,5 +165,6 @@ export {
 	EmojiPicker,
 	EmojiPickerContent,
 	EmojiPickerFooter,
-	EmojiPickerSearch,
+	EmojiPickerSearch
 };
+
